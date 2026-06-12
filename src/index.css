@@ -4,8 +4,21 @@
 
 @layer base {
   body {
-    @apply bg-gray-950 text-white min-h-screen;
+    @apply bg-gray-950 text-white min-h-screen transition-colors duration-200;
   }
+  .light body, body.light {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+/* Light mode overrides */
+:root.light {
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+}
+:root.dark {
+  --card-bg: #111827;
+  --card-border: #1f2937;
 }
 
 @layer components {
@@ -16,9 +29,12 @@
     @apply bg-fifa-blue hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-150;
   }
   .card {
-    @apply bg-gray-900 border border-gray-800 rounded-xl p-4;
+    @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4;
   }
   .stage-badge {
     @apply text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded;
+  }
+  .page-bg {
+    @apply bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors duration-200;
   }
 }

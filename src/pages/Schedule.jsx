@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { getMatches } from '../lib/store'
 import { STAGE_ORDER } from '../data/schedule'
 import MatchCard from '../components/MatchCard'
+import { useAppContext } from '../lib/context'
 
 export default function Schedule() {
+  const { compact } = useAppContext()
   const [matches, setMatches] = useState([])
   const [activeStage, setActiveStage] = useState('all')
   const [loading, setLoading] = useState(true)
@@ -53,9 +55,9 @@ export default function Schedule() {
         .map(([stage, stageMatches]) => (
           <div key={stage} className="mb-8">
             <h2 className="text-lg font-bold text-fifa-gold mb-3">{stage}</h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className={compact ? 'flex flex-col gap-2' : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'}>
               {stageMatches.map(m => (
-                <MatchCard key={m.id} match={m} />
+                <MatchCard key={m.id} match={m} compact={compact} />
               ))}
             </div>
           </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { getMatches, getPredictions, savePrediction } from '../lib/store'
 import { STAGE_ORDER } from '../data/schedule'
 import MatchCard from '../components/MatchCard'
+import { useAppContext } from '../lib/context'
 
 function isMatchLocked(match) {
   if (match.status !== 'upcoming') return true
@@ -9,6 +10,7 @@ function isMatchLocked(match) {
 }
 
 export default function Predict({ userName, onSetName }) {
+  const { compact } = useAppContext()
   const [nameInput, setNameInput] = useState('')
   const [matches, setMatches] = useState([])
   const [predictions, setPredictions] = useState({})
@@ -119,7 +121,7 @@ export default function Predict({ userName, onSetName }) {
       )}
 
       {!loading && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className={compact ? 'flex flex-col gap-2' : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'}>
           {displayMatches.map(m => (
             <MatchCard
               key={m.id}
@@ -127,6 +129,7 @@ export default function Predict({ userName, onSetName }) {
               prediction={predictions[m.id]}
               onPredict={handlePredict}
               locked={isMatchLocked(m)}
+              compact={compact}
             />
           ))}
         </div>
