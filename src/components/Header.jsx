@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAppContext } from '../lib/context'
+import { refreshFromApi } from '../lib/store'
 
 const nav = [
   { to: '/', label: 'Schedule' },
@@ -10,8 +11,26 @@ const nav = [
 
 export default function Header({ userName, onSetName }) {
   const { pathname } = useLocation()
-  const { compact, setCompact, theme, toggleTheme } = useAppContext()
+  const { compact, setCompact, theme, toggleTheme, triggerRefresh } = useAppContext()
   const [editing, setEditing] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+  const [refreshMsg, setRefreshMsg] = useState(null)
+
+  async function handleRefresh() {
+    setMenuOpen(false)
+    setRefreshing(true)
+    setRefreshMsg(null)
+    try {
+      const { updated } = await refreshFromApi()
+      setRefreshMsg(updated > 0 ? `✓ ${updated} score${updated !== 1 ? 's' : ''} updated` : '✓ Already up to date')
+      triggerRefresh()
+    } catch {
+      setRefreshMsg('⚠ Could not reach score API')
+    } finally {
+      setRefreshing(false)
+      setTimeout(() => setRefreshMsg(null), 3000)
+    }
+  }
   const [nameInput, setNameInput] = useState(userName)
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
@@ -80,10 +99,23 @@ export default function Header({ userName, onSetName }) {
                 <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
                 <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
               </button>
+              <div className="border-t border-gray-800" />
+              <button
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 transition-colors disabled:opacity-50"
+              >
+                <span className={refreshing ? 'animate-spin' : ''}>🔄</span>
+                <span>{refreshing ? 'Refreshing…' : 'Refresh scores'}</span>
+              </button>
             </div>
           )}
         </div>
       </div>
+
+      {refreshMsg && (
+        <div className="bg-black/30 text-center text-xs text-white/80 py-1">{refreshMsg}</div>
+      )}
 
       {userName && (
         <div className="bg-black/20 border-t border-white/10 text-center text-xs text-white/70 py-1.5">

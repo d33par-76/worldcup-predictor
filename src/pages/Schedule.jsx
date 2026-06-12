@@ -5,7 +5,7 @@ import MatchCard from '../components/MatchCard'
 import { useAppContext } from '../lib/context'
 
 export default function Schedule() {
-  const { compact } = useAppContext()
+  const { compact, refreshKey } = useAppContext()
   const [matches, setMatches] = useState([])
   const [activeStage, setActiveStage] = useState('all')
   const [search, setSearch] = useState('')
@@ -13,7 +13,7 @@ export default function Schedule() {
 
   useEffect(() => {
     getMatches().then(m => { setMatches(m); setLoading(false) })
-  }, [])
+  }, [refreshKey])
 
   const query = search.trim().toLowerCase()
 

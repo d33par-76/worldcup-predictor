@@ -4,13 +4,15 @@ import { STAGE_ORDER } from '../data/schedule'
 import MatchCard from '../components/MatchCard'
 import { useAppContext } from '../lib/context'
 
+const LOCK_BEFORE_MS = 3 * 60 * 60 * 1000 // 3 hours
+
 function isMatchLocked(match) {
   if (match.status !== 'upcoming') return true
-  return new Date(match.match_date) <= new Date()
+  return new Date(match.match_date) - new Date() <= LOCK_BEFORE_MS
 }
 
 export default function Predict({ userName, onSetName }) {
-  const { compact } = useAppContext()
+  const { compact, refreshKey } = useAppContext()
   const [nameInput, setNameInput] = useState('')
   const [matches, setMatches] = useState([])
   const [predictions, setPredictions] = useState({})
@@ -27,7 +29,7 @@ export default function Predict({ userName, onSetName }) {
       setPredictions(map)
       setLoading(false)
     })
-  }, [userName])
+  }, [userName, refreshKey])
 
   async function handlePredict(matchId, winner) {
     if (!userName) return

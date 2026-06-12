@@ -12,6 +12,9 @@ export default function App() {
   const [userName, setUserName] = useState(() => localStorage.getItem('wc2026_user') || '')
   const [theme, setTheme] = useState(() => localStorage.getItem('wc2026_theme') || 'dark')
   const [compact, setCompact] = useState(() => localStorage.getItem('wc2026_compact') === 'true')
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  function triggerRefresh() { setRefreshKey(k => k + 1) }
 
   useEffect(() => {
     const root = document.documentElement
@@ -43,7 +46,7 @@ export default function App() {
   }
 
   return (
-    <AppContext.Provider value={{ compact, setCompact, theme, toggleTheme }}>
+    <AppContext.Provider value={{ compact, setCompact, theme, toggleTheme, refreshKey, triggerRefresh }}>
       <BrowserRouter>
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-200">
           {!isConfigured && (

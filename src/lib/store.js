@@ -2,7 +2,8 @@ import { supabase, isConfigured } from './supabase'
 import { MATCHES } from '../data/schedule'
 
 // ── LOCAL STORAGE KEYS ──────────────────────────────────────────────────────
-const LS_MATCHES = 'wc2026_matches'
+const SCHEDULE_VERSION = 'v2' // bump when schedule.js teams/dates change
+const LS_MATCHES = `wc2026_matches_${SCHEDULE_VERSION}`
 const LS_PREDICTIONS = 'wc2026_predictions'
 
 function lsGet(key, fallback) {
@@ -121,6 +122,79 @@ function aggregateLeaderboard(predictions) {
     }
   }
   return Object.values(map).sort((a, b) => b.total - a.total || b.correct - a.correct)
+}
+
+// ── LIVE SCORES REFRESH ──────────────────────────────────────────────────────
+
+// Normalize team names from openfootball → our app names
+const NAME_MAP = {
+  'Bosnia and Herzegovina': 'Bosnia & Herzegovina',
+  "Côte d'Ivoire": 'Ivory Coast',
+  'Congo DR': 'DR Congo',
+  'DR Congo': 'DR Congo',
+  'Czech Republic': 'Czech Republic',
+}
+function normalizeName(n) { return NAME_MAP[n] || n }
+
+export async function refreshFromApi() {
+  try {
+    const res = await fetch('https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json')
+    if (!res.ok) throw new Error('API fetch failed')
+    const data = await res.json()
+
+    // Build a map: "HomeTeam|AwayTeam" → { home_score, away_score, status }
+    const scoreMap = {}
+    for (const round of (data.rounds || data.matches_groups || [])) {
+      for (const m of (round.matches || [])) {
+        const home = normalizeName(m.team1)
+        const away = normalizeName(m.team2)
+        const key = `${home}|${away}`
+        const ft = m.score?.ft
+        if (ft) {
+          scoreMap[key] = { home_score: ft[0], away_score: ft[1], status: 'finished' }
+        }
+      }
+    }
+
+    if (Object.keys(scoreMap).length === 0) return { updated: 0 }
+
+    if (isConfigured) {
+      // Fetch all matches from Supabase and update finished ones
+      const { data: matches } = await supabase.from('matches').select('*')
+      if (!matches) return { updated: 0 }
+      let updated = 0
+      for (const m of matches) {
+        const key = `${m.home_team}|${m.away_team}`
+        const result = scoreMap[key]
+        if (result && (m.home_score !== result.home_score || m.away_score !== result.away_score)) {
+          await supabase.from('matches').update(result).eq('id', m.id)
+          updated++
+        }
+      }
+      if (updated > 0) await recalcPoints()
+      return { updated }
+    } else {
+      // Update localStorage
+      const matches = lsGet(LS_MATCHES, MATCHES)
+      let updated = 0
+      for (const m of matches) {
+        const key = `${m.home_team}|${m.away_team}`
+        const result = scoreMap[key]
+        if (result && (m.home_score !== result.home_score || m.away_score !== result.away_score)) {
+          Object.assign(m, result)
+          updated++
+        }
+      }
+      if (updated > 0) {
+        lsSet(LS_MATCHES, matches)
+        recalcLocalPoints()
+      }
+      return { updated }
+    }
+  } catch (e) {
+    console.error('refreshFromApi:', e)
+    throw e
+  }
 }
 
 // ── POINTS CALCULATION ───────────────────────────────────────────────────────
