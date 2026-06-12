@@ -80,8 +80,8 @@ export default function MatchCard({ match, prediction, onPredict, locked, compac
                   prediction === val
                     ? 'bg-fifa-gold text-fifa-dark border-fifa-gold'
                     : locked
-                    ? 'bg-gray-800 border-gray-700 text-gray-600 cursor-not-allowed'
-                    : 'bg-gray-800 border-gray-700 hover:border-fifa-gold'
+                    ? 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                    : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-fifa-gold'
                 }`}
               >{label}</button>
             ))}
@@ -142,8 +142,8 @@ export default function MatchCard({ match, prediction, onPredict, locked, compac
                   selected
                     ? 'bg-fifa-gold text-fifa-dark border-fifa-gold font-bold'
                     : disabled
-                    ? 'bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed'
-                    : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-fifa-gold hover:text-white'
+                    ? 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-fifa-gold hover:text-gray-900 dark:hover:text-white'
                 }`}
               >{label}</button>
             )

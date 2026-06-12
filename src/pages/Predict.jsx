@@ -106,15 +106,15 @@ export default function Predict({ userName, onSetName }) {
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="card flex-1 min-w-[120px] text-center">
           <div className="text-3xl font-black text-fifa-gold">{totalPoints}</div>
-          <div className="text-xs text-gray-400 mt-1">Total Points</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Points</div>
         </div>
         <div className="card flex-1 min-w-[120px] text-center">
-          <div className="text-3xl font-black text-white">{pickedCount}</div>
-          <div className="text-xs text-gray-400 mt-1">Picks Made</div>
+          <div className="text-3xl font-black text-gray-900 dark:text-white">{pickedCount}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Picks Made</div>
         </div>
         <div className="card flex-1 min-w-[120px] text-center">
-          <div className="text-3xl font-black text-white">{allUpcoming.length}</div>
-          <div className="text-xs text-gray-400 mt-1">Upcoming</div>
+          <div className="text-3xl font-black text-gray-900 dark:text-white">{allUpcoming.length}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Upcoming</div>
         </div>
       </div>
 
