@@ -126,32 +126,55 @@ function aggregateLeaderboard(predictions) {
 
 // ── LIVE SCORES REFRESH ──────────────────────────────────────────────────────
 
-// Normalize team names from openfootball → our app names
-const NAME_MAP = {
+// ESPN team name → our app name
+const ESPN_NAME_MAP = {
+  'Czechia': 'Czech Republic',
+  'Turkey': 'Türkiye',
+  "Cote d'Ivoire": 'Ivory Coast',
+  'Congo': 'DR Congo',
+  'Bosnia-Herzegovina': 'Bosnia & Herzegovina',
   'Bosnia and Herzegovina': 'Bosnia & Herzegovina',
-  "Côte d'Ivoire": 'Ivory Coast',
-  'Congo DR': 'DR Congo',
-  'DR Congo': 'DR Congo',
-  'Czech Republic': 'Czech Republic',
+  'Cape Verde Islands': 'Cape Verde',
 }
-function normalizeName(n) { return NAME_MAP[n] || n }
+function normalizeEspn(n) { return ESPN_NAME_MAP[n] || n }
+
+const ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard'
 
 export async function refreshFromApi() {
   try {
-    const res = await fetch('https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json')
-    if (!res.ok) throw new Error('API fetch failed')
-    const data = await res.json()
+    // Fetch today + the past 7 days to catch any recently finished matches
+    const dates = []
+    for (let i = 0; i <= 7; i++) {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      dates.push(d.toISOString().slice(0, 10).replace(/-/g, ''))
+    }
 
-    // Build a map: "HomeTeam|AwayTeam" → { home_score, away_score, status }
     const scoreMap = {}
-    for (const round of (data.rounds || data.matches_groups || [])) {
-      for (const m of (round.matches || [])) {
-        const home = normalizeName(m.team1)
-        const away = normalizeName(m.team2)
+    for (const date of dates) {
+      const res = await fetch(`${ESPN_URL}?dates=${date}`)
+      if (!res.ok) continue
+      const data = await res.json()
+      for (const event of (data.events || [])) {
+        const comp = event.competitions?.[0]
+        if (!comp) continue
+        const statusDesc = comp.status?.type?.description || ''
+        const finished = statusDesc === 'Full Time' || statusDesc === 'Final' || statusDesc === 'FT'
+        const live = statusDesc === 'In Progress' || statusDesc === 'Halftime'
+        if (!finished && !live) continue
+
+        // competitors: find home and away by homeAway field
+        const homeComp = comp.competitors?.find(c => c.homeAway === 'home') || comp.competitors?.[0]
+        const awayComp = comp.competitors?.find(c => c.homeAway === 'away') || comp.competitors?.[1]
+        if (!homeComp || !awayComp) continue
+
+        const home = normalizeEspn(homeComp.team.displayName)
+        const away = normalizeEspn(awayComp.team.displayName)
         const key = `${home}|${away}`
-        const ft = m.score?.ft
-        if (ft) {
-          scoreMap[key] = { home_score: ft[0], away_score: ft[1], status: 'finished' }
+        scoreMap[key] = {
+          home_score: parseInt(homeComp.score, 10),
+          away_score: parseInt(awayComp.score, 10),
+          status: finished ? 'finished' : 'live',
         }
       }
     }
