@@ -78,7 +78,7 @@ export default function Header({ userName, onSetName }) {
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setMenuOpen(o => !o)}
-            className="px-2 py-1.5 rounded-lg border border-white/20 text-gray-300 hover:border-white/40 hover:text-white transition-colors text-lg leading-none"
+            className="px-2 py-1.5 rounded-lg border border-white/40 bg-blue-950 text-white hover:bg-blue-900 hover:border-white/60 transition-colors text-lg leading-none"
             title="More options"
           >⋮</button>
           {menuOpen && (
