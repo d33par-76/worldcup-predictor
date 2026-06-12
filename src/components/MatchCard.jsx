@@ -124,7 +124,7 @@ export default function MatchCard({ match, prediction, onPredict, locked, compac
         {venue && <div className="hidden sm:block">{venue}</div>}
       </div>
 
-      {status === 'upcoming' && (
+      {status === 'upcoming' && onPredict && (
         <div className="mt-4 flex gap-2 text-xs font-semibold">
           {[
             { val: 'home', label: `🏠 ${home_team}` },
