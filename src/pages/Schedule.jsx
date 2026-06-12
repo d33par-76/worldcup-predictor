@@ -65,7 +65,7 @@ export default function Schedule() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search country…"
-          className="w-full bg-gray-800 dark:bg-gray-800 border border-gray-700 rounded-lg pl-8 pr-8 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-fifa-teal"
+          className="w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg pl-8 pr-8 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-fifa-teal shadow-sm"
         />
         {search && (
           <button
@@ -84,10 +84,10 @@ export default function Schedule() {
           <button
             key={val}
             onClick={() => { setFilter(val); setGroupOpen(false) }}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm ${
               filter === val
-                ? 'bg-fifa-gold text-fifa-dark'
-                : 'bg-gray-800 text-gray-400 hover:text-white'
+                ? 'bg-fifa-gold text-fifa-dark shadow-md'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-gray-700'
             }`}
           >{label}</button>
         ))}
@@ -96,10 +96,10 @@ export default function Schedule() {
         <div className="relative" ref={dropRef}>
           <button
             onClick={() => setGroupOpen(o => !o)}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 ${
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-sm ${
               activeGroup
-                ? 'bg-fifa-gold text-fifa-dark'
-                : 'bg-gray-800 text-gray-400 hover:text-white'
+                ? 'bg-fifa-gold text-fifa-dark shadow-md'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-gray-700'
             }`}
           >
             {activeGroup || 'Groups'}
@@ -109,13 +109,13 @@ export default function Schedule() {
           </button>
 
           {groupOpen && (
-            <div className="absolute top-full left-0 mt-1 bg-gray-900 border border-gray-700 rounded-xl shadow-xl z-50 py-1 min-w-[130px]">
+            <div className="absolute top-full left-0 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 py-1 min-w-[130px]">
               {GROUP_NAMES.map(g => (
                 <button
                   key={g}
                   onClick={() => { setFilter(g); setGroupOpen(false) }}
-                  className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-800 transition-colors ${
-                    filter === g ? 'text-fifa-gold font-bold' : 'text-gray-300'
+                  className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
+                    filter === g ? 'text-fifa-gold font-bold' : 'text-gray-700 dark:text-gray-300'
                   }`}
                 >{g}</button>
               ))}

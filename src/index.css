@@ -16,7 +16,7 @@
     @apply bg-fifa-blue hover:bg-cyan-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-150;
   }
   .card {
-    @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4;
+    @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 shadow-md dark:shadow-none;
   }
   .stage-badge {
     @apply text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded;

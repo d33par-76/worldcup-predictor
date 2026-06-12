@@ -126,7 +126,7 @@ export default function Predict({ userName, onSetName }) {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search country…"
-          className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-8 pr-8 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-fifa-teal"
+          className="w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg pl-8 pr-8 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-fifa-teal shadow-sm"
         />
         {search && (
           <button
@@ -147,7 +147,7 @@ export default function Predict({ userName, onSetName }) {
           <button
             key={val}
             onClick={() => setFilter(val)}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${filter === val ? 'bg-fifa-gold text-fifa-dark' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm ${filter === val ? 'bg-fifa-gold text-fifa-dark shadow-md' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-gray-700'}`}
           >
             {label}
           </button>
