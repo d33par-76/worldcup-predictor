@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAppContext } from '../lib/context'
 
@@ -7,9 +8,19 @@ const nav = [
   { to: '/leaderboard', label: 'Leaderboard' },
 ]
 
-export default function Header({ userName }) {
+export default function Header({ userName, onSetName }) {
   const { pathname } = useLocation()
   const { compact, setCompact, theme, toggleTheme } = useAppContext()
+  const [editing, setEditing] = useState(false)
+  const [nameInput, setNameInput] = useState(userName)
+
+  function submitRename(e) {
+    e.preventDefault()
+    const trimmed = nameInput.trim()
+    if (!trimmed) return
+    onSetName(trimmed)
+    setEditing(false)
+  }
 
   return (
     <header className="sticky top-0 z-50">
@@ -52,22 +63,40 @@ export default function Header({ userName }) {
         <button
           onClick={toggleTheme}
           title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="px-2 py-1.5 rounded-lg text-sm border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white transition-colors"
+          className="px-2 py-1.5 rounded-lg text-sm border border-white/20 text-gray-300 hover:border-white/40 hover:text-white transition-colors"
         >
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
       </div>
 
       {userName && (
-        <div className="bg-fifa-teal/10 border-t border-fifa-teal/20 text-center text-xs text-cyan-300 py-1">
-          Playing as <span className="font-bold text-white">{userName}</span>
-          &nbsp;·&nbsp;
-          <button
-            className="underline hover:text-white"
-            onClick={() => { localStorage.removeItem('wc2026_user'); window.location.reload() }}
-          >
-            Change name
-          </button>
+        <div className="bg-black/20 border-t border-white/10 text-center text-xs text-white/70 py-1.5">
+          {editing ? (
+            <form onSubmit={submitRename} className="inline-flex items-center gap-2">
+              <span className="text-white/60">Playing as</span>
+              <input
+                autoFocus
+                type="text"
+                value={nameInput}
+                onChange={e => setNameInput(e.target.value)}
+                maxLength={30}
+                className="bg-white/10 border border-white/30 rounded px-2 py-0.5 text-white text-xs w-32 focus:outline-none focus:border-white/60"
+              />
+              <button type="submit" className="text-fifa-gold font-bold hover:text-white">Save</button>
+              <button type="button" onClick={() => { setEditing(false); setNameInput(userName) }} className="text-white/50 hover:text-white">Cancel</button>
+            </form>
+          ) : (
+            <>
+              Playing as <span className="font-bold text-white">{userName}</span>
+              &nbsp;·&nbsp;
+              <button
+                className="underline hover:text-white"
+                onClick={() => { setNameInput(userName); setEditing(true) }}
+              >
+                Change name
+              </button>
+            </>
+          )}
         </div>
       )}
     </header>

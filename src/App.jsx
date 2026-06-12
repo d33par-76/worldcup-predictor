@@ -51,7 +51,7 @@ export default function App() {
               ⚠️ Running in <strong>demo mode</strong> (localStorage) — add Supabase credentials to go live.
             </div>
           )}
-          <Header userName={userName} />
+          <Header userName={userName} onSetName={handleSetName} />
           <main>
             <Routes>
               <Route path="/" element={<Schedule />} />
