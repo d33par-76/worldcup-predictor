@@ -54,35 +54,13 @@ export default function Header({ userName, onSetName }) {
   return (
     <header className="sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
-        <Link to="/" className="flex items-center mr-2">
-          <img src="/logo.png" alt="La Dee Du WC26" className="h-10 w-10 rounded-full object-cover" />
-        </Link>
-
-        <nav className="flex gap-1 text-sm font-semibold flex-1">
-          {nav.map(({ to, label }) => (
-            <Link
-              key={to}
-              to={to}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${
-                pathname === to
-                  ? 'nav-active'
-                  : 'text-gray-300 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Kebab menu */}
-        <div className="relative" ref={menuRef}>
-          <button
-            onClick={() => setMenuOpen(o => !o)}
-            className="px-2 py-1.5 rounded-lg border border-white/40 bg-blue-950 text-white hover:bg-blue-900 hover:border-white/60 transition-colors text-lg leading-none"
-            title="More options"
-          >⋮</button>
+        {/* Logo opens more menu */}
+        <div className="relative mr-2" ref={menuRef}>
+          <button onClick={() => setMenuOpen(o => !o)} className="rounded-full focus:outline-none">
+            <img src="/logo.png" alt="La Dee Du WC26" className="h-10 w-10 rounded-full object-cover" />
+          </button>
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-44 bg-gray-900 border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
+            <div className="absolute left-0 top-full mt-2 w-44 bg-gray-900 border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
               <button
                 onClick={() => { setCompact(c => !c); setMenuOpen(false) }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 transition-colors"
@@ -110,6 +88,22 @@ export default function Header({ userName, onSetName }) {
             </div>
           )}
         </div>
+
+        <nav className="flex gap-1 text-sm font-semibold flex-1">
+          {nav.map(({ to, label }) => (
+            <Link
+              key={to}
+              to={to}
+              className={`px-3 py-1.5 rounded-lg transition-colors ${
+                pathname === to
+                  ? 'nav-active'
+                  : 'text-gray-300 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
       </div>
 
       {refreshMsg && (
