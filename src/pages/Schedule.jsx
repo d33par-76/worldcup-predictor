@@ -1,40 +1,56 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getMatches } from '../lib/store'
-import { STAGE_ORDER } from '../data/schedule'
+import { GROUPS } from '../data/schedule'
 import MatchCard from '../components/MatchCard'
 import { useAppContext } from '../lib/context'
+
+const GROUP_NAMES = Object.keys(GROUPS).map(g => `Group ${g}`)
 
 export default function Schedule() {
   const { compact, refreshKey } = useAppContext()
   const [matches, setMatches] = useState([])
-  const [activeStage, setActiveStage] = useState('all')
+  const [filter, setFilter] = useState('upcoming') // 'upcoming' | 'completed' | group name
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
+  const [groupOpen, setGroupOpen] = useState(false)
+  const dropRef = useRef(null)
 
   useEffect(() => {
     getMatches().then(m => { setMatches(m); setLoading(false) })
   }, [refreshKey])
 
+  useEffect(() => {
+    function handleClick(e) {
+      if (dropRef.current && !dropRef.current.contains(e.target)) setGroupOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
   const query = search.trim().toLowerCase()
 
-  const stageFiltered = activeStage === 'all'
-    ? matches
-    : matches.filter(m => m.stage === activeStage)
+  const baseMatches =
+    filter === 'upcoming'
+      ? matches.filter(m => m.status === 'upcoming' || m.status === 'live')
+      : filter === 'completed'
+      ? matches.filter(m => m.status === 'finished')
+      : matches.filter(m => {
+          const groupLetter = filter.replace('Group ', '')
+          const groupTeams = GROUPS[groupLetter] || []
+          return groupTeams.includes(m.home_team) || groupTeams.includes(m.away_team)
+        })
 
   const filtered = query
-    ? stageFiltered.filter(m =>
+    ? baseMatches.filter(m =>
         m.home_team.toLowerCase().includes(query) ||
         m.away_team.toLowerCase().includes(query)
       )
-    : stageFiltered
+    : baseMatches
 
-  const stages = ['all', ...STAGE_ORDER.filter(s => matches.some(m => m.stage === s))]
+  // Sort by match date
+  const sorted = [...filtered].sort((a, b) => new Date(a.match_date) - new Date(b.match_date))
 
-  const grouped = {}
-  for (const m of filtered) {
-    if (!grouped[m.stage]) grouped[m.stage] = []
-    grouped[m.stage].push(m)
-  }
+  const activeGroup = GROUP_NAMES.includes(filter) ? filter : null
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
@@ -59,44 +75,70 @@ export default function Schedule() {
         )}
       </div>
 
-      {/* Stage filter */}
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
-        {stages.map(s => (
+      {/* Filters */}
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {[
+          ['upcoming', `Upcoming (${matches.filter(m => m.status === 'upcoming' || m.status === 'live').length})`],
+          ['completed', `Completed (${matches.filter(m => m.status === 'finished').length})`],
+        ].map(([val, label]) => (
           <button
-            key={s}
-            onClick={() => setActiveStage(s)}
-            className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
-              activeStage === s
-                ? 'bg-fifa-gold text-fifa-dark border-fifa-gold'
-                : 'border-gray-700 text-gray-400 hover:border-gray-500'
+            key={val}
+            onClick={() => { setFilter(val); setGroupOpen(false) }}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              filter === val
+                ? 'bg-fifa-gold text-fifa-dark'
+                : 'bg-gray-800 text-gray-400 hover:text-white'
+            }`}
+          >{label}</button>
+        ))}
+
+        {/* Groups dropdown */}
+        <div className="relative" ref={dropRef}>
+          <button
+            onClick={() => setGroupOpen(o => !o)}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 ${
+              activeGroup
+                ? 'bg-fifa-gold text-fifa-dark'
+                : 'bg-gray-800 text-gray-400 hover:text-white'
             }`}
           >
-            {s === 'all' ? 'All Matches' : s}
+            {activeGroup || 'Groups'}
+            <svg className={`w-3.5 h-3.5 transition-transform ${groupOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
           </button>
-        ))}
+
+          {groupOpen && (
+            <div className="absolute top-full left-0 mt-1 bg-gray-900 border border-gray-700 rounded-xl shadow-xl z-50 py-1 min-w-[130px]">
+              {GROUP_NAMES.map(g => (
+                <button
+                  key={g}
+                  onClick={() => { setFilter(g); setGroupOpen(false) }}
+                  className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-800 transition-colors ${
+                    filter === g ? 'text-fifa-gold font-bold' : 'text-gray-300'
+                  }`}
+                >{g}</button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {loading && <div className="text-center text-gray-400 py-12">Loading schedule…</div>}
 
-      {!loading && filtered.length === 0 && (
+      {!loading && sorted.length === 0 && (
         <div className="text-center text-gray-500 py-12">
           No matches found{query ? ` for "${search}"` : ''}.
         </div>
       )}
 
-      {!loading && Object.entries(grouped)
-        .sort(([a], [b]) => STAGE_ORDER.indexOf(a) - STAGE_ORDER.indexOf(b))
-        .map(([stage, stageMatches]) => (
-          <div key={stage} className="mb-8">
-            <h2 className="text-lg font-bold text-fifa-gold mb-3">{stage}</h2>
-            <div className={compact ? 'flex flex-col gap-2' : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'}>
-              {stageMatches.map(m => (
-                <MatchCard key={m.id} match={m} compact={compact} />
-              ))}
-            </div>
-          </div>
-        ))
-      }
+      {!loading && (
+        <div className={compact ? 'flex flex-col gap-2' : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'}>
+          {sorted.map(m => (
+            <MatchCard key={m.id} match={m} compact={compact} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

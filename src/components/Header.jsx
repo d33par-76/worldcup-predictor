@@ -54,9 +54,8 @@ export default function Header({ userName, onSetName }) {
   return (
     <header className="sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
-        <Link to="/" className="flex items-center gap-2 font-black text-xl tracking-tight mr-2">
-          <span className="text-2xl">🏆</span>
-          <span className="text-white">WC <span className="text-fifa-gold">2026</span></span>
+        <Link to="/" className="flex items-center mr-2">
+          <img src="/logo.png" alt="La Dee Du WC26" className="h-10 w-10 rounded-full object-cover" />
         </Link>
 
         <nav className="flex gap-1 text-sm font-semibold flex-1">
