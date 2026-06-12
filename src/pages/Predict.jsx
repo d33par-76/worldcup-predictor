@@ -65,12 +65,17 @@ export default function Predict({ userName, onSetName }) {
     )
   }
 
-  const upcoming = matches.filter(m => m.status === 'upcoming')
+  const now = new Date()
+  const in3Days = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
+
+  const upcoming = matches.filter(m => m.status === 'upcoming' && new Date(m.match_date) >= now && new Date(m.match_date) <= in3Days)
+  const allUpcoming = matches.filter(m => m.status === 'upcoming')
   const finished = matches.filter(m => m.status === 'finished')
   const live = matches.filter(m => m.status === 'live')
 
   const displayMatches =
-    filter === 'upcoming' ? upcoming
+    filter === 'all' ? matches
+    : filter === 'upcoming' ? upcoming
     : filter === 'live' ? live
     : finished
 
@@ -96,14 +101,19 @@ export default function Predict({ userName, onSetName }) {
           <div className="text-xs text-gray-400 mt-1">Picks Made</div>
         </div>
         <div className="card flex-1 min-w-[120px] text-center">
-          <div className="text-3xl font-black text-white">{upcoming.length}</div>
+          <div className="text-3xl font-black text-white">{allUpcoming.length}</div>
           <div className="text-xs text-gray-400 mt-1">Upcoming</div>
         </div>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-2 mb-6">
-        {[['upcoming', `Upcoming (${upcoming.length})`], ['live', `Live (${live.length})`], ['finished', `Finished (${finished.length})`]].map(([val, label]) => (
+      <div className="flex flex-wrap gap-2 mb-6">
+        {[
+          ['all', `All (${matches.length})`],
+          ['upcoming', `Upcoming (${upcoming.length})`],
+          ['live', `Live (${live.length})`],
+          ['finished', `Finished (${finished.length})`],
+        ].map(([val, label]) => (
           <button
             key={val}
             onClick={() => setFilter(val)}
