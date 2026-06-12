@@ -16,6 +16,7 @@ export default function Predict({ userName, onSetName }) {
   const [predictions, setPredictions] = useState({})
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('upcoming')
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     if (!userName) return
@@ -73,11 +74,20 @@ export default function Predict({ userName, onSetName }) {
   const finished = matches.filter(m => m.status === 'finished')
   const live = matches.filter(m => m.status === 'live')
 
-  const displayMatches =
+  const query = search.trim().toLowerCase()
+
+  const baseMatches =
     filter === 'all' ? matches
     : filter === 'upcoming' ? upcoming
     : filter === 'live' ? live
     : finished
+
+  const displayMatches = query
+    ? baseMatches.filter(m =>
+        m.home_team.toLowerCase().includes(query) ||
+        m.away_team.toLowerCase().includes(query)
+      )
+    : baseMatches
 
   const totalPoints = Object.entries(predictions).reduce((sum, [matchId, winner]) => {
     const m = matches.find(m => m.id === Number(matchId))
@@ -104,6 +114,24 @@ export default function Predict({ userName, onSetName }) {
           <div className="text-3xl font-black text-white">{allUpcoming.length}</div>
           <div className="text-xs text-gray-400 mt-1">Upcoming</div>
         </div>
+      </div>
+
+      {/* Search */}
+      <div className="relative mb-4">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search country…"
+          className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-8 pr-8 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-fifa-teal"
+        />
+        {search && (
+          <button
+            onClick={() => setSearch('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white text-xs"
+          >✕</button>
+        )}
       </div>
 
       {/* Filter tabs */}
