@@ -8,7 +8,7 @@ export const FLAG_EMOJI = {
   // Group C
   'Brazil': '🇧🇷', 'Morocco': '🇲🇦', 'Haiti': '🇭🇹', 'Scotland': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
   // Group D
-  'USA': '🇺🇸', 'Paraguay': '🇵🇾', 'Australia': '🇦🇺', 'Turkey': '🇹🇷',
+  'USA': '🇺🇸', 'Paraguay': '🇵🇾', 'Australia': '🇦🇺', 'Türkiye': '🇹🇷',
   // Group E
   'Germany': '🇩🇪', 'Curaçao': '🇨🇼', 'Ivory Coast': '🇨🇮', 'Ecuador': '🇪🇨',
   // Group F
@@ -31,7 +31,7 @@ export const GROUPS = {
   A: ['Mexico', 'South Africa', 'South Korea', 'Czech Republic'],
   B: ['Canada', 'Bosnia & Herzegovina', 'Qatar', 'Switzerland'],
   C: ['Brazil', 'Morocco', 'Haiti', 'Scotland'],
-  D: ['USA', 'Paraguay', 'Australia', 'Turkey'],
+  D: ['USA', 'Paraguay', 'Australia', 'Türkiye'],
   E: ['Germany', 'Curaçao', 'Ivory Coast', 'Ecuador'],
   F: ['Netherlands', 'Japan', 'Sweden', 'Tunisia'],
   G: ['Belgium', 'Egypt', 'Iran', 'New Zealand'],
@@ -70,10 +70,10 @@ const groupMatches = [
 
   // ── Group D ──────────────────────────────────────────────────────────────
   { id: 19, stage: 'Group D', home_team: 'USA',          away_team: 'Paraguay',       match_date: '2026-06-13T01:00:00Z', venue: 'SoFi Stadium, Los Angeles' },
-  { id: 20, stage: 'Group D', home_team: 'Australia',    away_team: 'Turkey',         match_date: '2026-06-14T04:00:00Z', venue: 'BC Place, Vancouver' },
+  { id: 20, stage: 'Group D', home_team: 'Australia',    away_team: 'Türkiye',         match_date: '2026-06-14T04:00:00Z', venue: 'BC Place, Vancouver' },
   { id: 21, stage: 'Group D', home_team: 'USA',          away_team: 'Australia',      match_date: '2026-06-19T19:00:00Z', venue: 'Lumen Field, Seattle' },
-  { id: 22, stage: 'Group D', home_team: 'Turkey',       away_team: 'Paraguay',       match_date: '2026-06-20T03:00:00Z', venue: "Levi's Stadium, San Francisco" },
-  { id: 23, stage: 'Group D', home_team: 'Turkey',       away_team: 'USA',            match_date: '2026-06-26T02:00:00Z', venue: 'SoFi Stadium, Los Angeles' },
+  { id: 22, stage: 'Group D', home_team: 'Türkiye',       away_team: 'Paraguay',       match_date: '2026-06-20T03:00:00Z', venue: "Levi's Stadium, San Francisco" },
+  { id: 23, stage: 'Group D', home_team: 'Türkiye',       away_team: 'USA',            match_date: '2026-06-26T02:00:00Z', venue: 'SoFi Stadium, Los Angeles' },
   { id: 24, stage: 'Group D', home_team: 'Paraguay',     away_team: 'Australia',      match_date: '2026-06-26T02:00:00Z', venue: "Levi's Stadium, San Francisco" },
 
   // ── Group E ──────────────────────────────────────────────────────────────
