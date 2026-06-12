@@ -8,11 +8,11 @@ function formatTimes(iso) {
     timeZone: 'America/Los_Angeles',
     timeZoneName: 'short',
   })
-  const nl = d.toLocaleString('en-US', {
+  const nlTime = d.toLocaleString('en-US', {
     hour: '2-digit', minute: '2-digit',
     timeZone: 'Europe/Amsterdam',
-    timeZoneName: 'short',
   })
+  const nl = `${nlTime} NED`
   return { pst, nl }
 }
 
@@ -120,7 +120,7 @@ export default function MatchCard({ match, prediction, onPredict, locked, compac
 
       <div className="text-center mt-3 text-xs text-gray-500 dark:text-gray-500 space-y-0.5">
         <div>{pst}</div>
-        <div className="text-gray-600 dark:text-gray-600">{nl} (Netherlands)</div>
+        <div className="text-gray-600 dark:text-gray-600">{nl}</div>
         {venue && <div className="hidden sm:block">{venue}</div>}
       </div>
 

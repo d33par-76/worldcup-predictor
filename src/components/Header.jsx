@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAppContext } from '../lib/context'
 
@@ -13,6 +13,16 @@ export default function Header({ userName, onSetName }) {
   const { compact, setCompact, theme, toggleTheme } = useAppContext()
   const [editing, setEditing] = useState(false)
   const [nameInput, setNameInput] = useState(userName)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef(null)
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
 
   function submitRename(e) {
     e.preventDefault()
@@ -46,27 +56,33 @@ export default function Header({ userName, onSetName }) {
           ))}
         </nav>
 
-        {/* Compact toggle */}
-        <button
-          onClick={() => setCompact(c => !c)}
-          title={compact ? 'Switch to full view' : 'Switch to compact view'}
-          className={`px-2 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
-            compact
-              ? 'bg-fifa-gold text-fifa-dark border-fifa-gold'
-              : 'border-white/20 text-gray-300 hover:border-fifa-teal hover:text-white'
-          }`}
-        >
-          {compact ? '⊞ Full' : '☰ Compact'}
-        </button>
-
-        {/* Theme toggle */}
-        <button
-          onClick={toggleTheme}
-          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="px-2 py-1.5 rounded-lg text-sm border border-white/20 text-gray-300 hover:border-white/40 hover:text-white transition-colors"
-        >
-          {theme === 'dark' ? '☀️' : '🌙'}
-        </button>
+        {/* Kebab menu */}
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setMenuOpen(o => !o)}
+            className="px-2 py-1.5 rounded-lg border border-white/20 text-gray-300 hover:border-white/40 hover:text-white transition-colors text-lg leading-none"
+            title="More options"
+          >⋮</button>
+          {menuOpen && (
+            <div className="absolute right-0 top-full mt-2 w-44 bg-gray-900 border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
+              <button
+                onClick={() => { setCompact(c => !c); setMenuOpen(false) }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 transition-colors"
+              >
+                <span>{compact ? '⊞' : '☰'}</span>
+                <span>{compact ? 'Full view' : 'Compact view'}</span>
+              </button>
+              <div className="border-t border-gray-800" />
+              <button
+                onClick={() => { toggleTheme(); setMenuOpen(false) }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 transition-colors"
+              >
+                <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+                <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {userName && (
