@@ -25,8 +25,8 @@
 
 /* ── Gradient header ─────────────────────────────────────────────────────── */
 header {
-  background: linear-gradient(135deg, #001f3f 0%, #003d66 50%, #005577 100%);
-  border-bottom: 1px solid rgba(0, 180, 216, 0.25);
+  background: linear-gradient(90deg, #003366 0%, #006994 30%, #00b4d8 55%, #f77f00 80%, #fcbf49 100%);
+  border-bottom: 1px solid rgba(0, 180, 216, 0.2);
 }
 
 /* ── Teal glow on active nav ─────────────────────────────────────────────── */
