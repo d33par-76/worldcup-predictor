@@ -6,9 +6,11 @@ export default {
     extend: {
       colors: {
         fifa: {
-          blue: '#1a4f8a',
-          gold: '#c9a84c',
-          dark: '#0d2137',
+          blue: '#006994',
+          teal: '#00b4d8',
+          gold: '#f77f00',
+          amber: '#fcbf49',
+          dark: '#001f3f',
         },
       },
     },
