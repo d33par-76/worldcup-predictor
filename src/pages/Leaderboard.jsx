@@ -3,9 +3,15 @@ import { getLeaderboard } from '../lib/store'
 
 const MEDAL = ['🥇', '🥈', '🥉']
 
+function adjScore(entry) {
+  if (!entry.total_picks) return 0
+  return entry.total / entry.total_picks
+}
+
 export default function Leaderboard({ userName }) {
   const [board, setBoard] = useState([])
   const [loading, setLoading] = useState(true)
+  const [mode, setMode] = useState('original')
 
   useEffect(() => {
     getLeaderboard().then(b => { setBoard(b); setLoading(false) })
@@ -15,10 +21,36 @@ export default function Leaderboard({ userName }) {
     return () => clearInterval(interval)
   }, [])
 
+  const sorted = [...board].sort((a, b) =>
+    mode === 'adjusted'
+      ? adjScore(b) - adjScore(a) || b.total - a.total
+      : b.total - a.total || b.correct - a.correct
+  )
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <h1 className="text-2xl font-black mb-1">Leaderboard</h1>
-      <p className="text-gray-400 text-sm mb-6">Updates as results come in · 2 pts correct · 1 pt draw · 0 pts wrong</p>
+      <p className="text-gray-400 text-sm mb-4">Updates as results come in · 2 pts correct · 1 pt draw · 0 pts wrong</p>
+
+      {/* Toggle */}
+      <div className="flex gap-2 mb-6">
+        {['original', 'adjusted'].map(m => (
+          <button
+            key={m}
+            onClick={() => setMode(m)}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+              mode === m
+                ? 'bg-fifa-gold text-fifa-dark border-fifa-gold'
+                : 'border-gray-700 text-gray-400 hover:border-gray-500'
+            }`}
+          >
+            {m === 'original' ? 'Original' : 'Adjusted'}
+          </button>
+        ))}
+        {mode === 'adjusted' && (
+          <span className="text-xs text-gray-500 self-center ml-1">points per graded pick</span>
+        )}
+      </div>
 
       {loading && <div className="text-center text-gray-400 py-12">Loading…</div>}
 
@@ -29,9 +61,9 @@ export default function Leaderboard({ userName }) {
         </div>
       )}
 
-      {!loading && board.length > 0 && (
+      {!loading && sorted.length > 0 && (
         <div className="space-y-2">
-          {board.map((entry, i) => {
+          {sorted.map((entry, i) => {
             const isMe = entry.user_name === userName
             return (
               <div
@@ -54,10 +86,18 @@ export default function Leaderboard({ userName }) {
                 </div>
 
                 {/* Stats */}
-                <div className="text-right text-sm text-gray-400">
-                  <span className="text-white font-bold text-lg">{entry.total}</span>
-                  <span className="ml-1">pts</span>
-                </div>
+                {mode === 'adjusted' ? (
+                  <div className="text-right text-sm text-gray-400">
+                    <span className="text-white font-bold text-lg">{adjScore(entry).toFixed(2)}</span>
+                    <span className="ml-1">avg</span>
+                    <div className="text-xs text-gray-500">{entry.total_picks} graded</div>
+                  </div>
+                ) : (
+                  <div className="text-right text-sm text-gray-400">
+                    <span className="text-white font-bold text-lg">{entry.total}</span>
+                    <span className="ml-1">pts</span>
+                  </div>
+                )}
                 <div className="text-right text-xs text-gray-500 w-16">
                   <div>{entry.correct} correct</div>
                   <div>{entry.total_picks} graded</div>
