@@ -2,7 +2,7 @@ import { supabase, isConfigured } from './supabase'
 import { MATCHES } from '../data/schedule'
 
 // ── LOCAL STORAGE KEYS ──────────────────────────────────────────────────────
-const SCHEDULE_VERSION = 'v2' // bump when schedule.js teams/dates change
+const SCHEDULE_VERSION = 'v3' // bump when schedule.js teams/dates change
 const LS_MATCHES = `wc2026_matches_${SCHEDULE_VERSION}`
 const LS_PREDICTIONS = 'wc2026_predictions'
 
