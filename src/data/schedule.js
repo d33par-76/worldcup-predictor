@@ -141,18 +141,26 @@ const groupMatches = [
   { id: 72, stage: 'Group L', home_team: 'Croatia',      away_team: 'Ghana',          match_date: '2026-06-27T21:00:00Z', venue: 'Lincoln Financial Field, Philadelphia' },
 ].map(m => ({ ...m, home_score: null, away_score: null, status: 'upcoming' }))
 
-// Knockout stage placeholders (teams determined after group stage)
+// Knockout stage
 let id = 73
 const knockoutMatches = [
   // Round of 32 — June 28 – July 3
-  ...['2026-06-28T19:00:00Z','2026-06-29T20:30:00Z','2026-06-29T23:00:00Z','2026-06-29T17:00:00Z',
-      '2026-06-30T21:00:00Z','2026-06-30T17:00:00Z','2026-06-30T23:00:00Z','2026-07-01T16:00:00Z',
-      '2026-07-01T19:00:00Z','2026-07-01T17:00:00Z','2026-07-02T23:00:00Z','2026-07-02T19:00:00Z',
-      '2026-07-02T20:00:00Z','2026-07-03T22:00:00Z','2026-07-03T23:30:00Z','2026-07-03T18:00:00Z',
-    ].map(date => ({
-      id: id++, stage: 'Round of 32', home_team: 'TBD', away_team: 'TBD',
-      match_date: date, venue: 'TBD', home_score: null, away_score: null, status: 'upcoming',
-    })),
+  { id: id++, stage: 'Round of 32', home_team: 'South Africa', away_team: 'Canada',               match_date: '2026-06-28T19:00:00Z', venue: 'SoFi Stadium, Los Angeles',          home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'Brazil',       away_team: 'Japan',                match_date: '2026-06-29T17:00:00Z', venue: 'NRG Stadium, Houston',              home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'Germany',      away_team: 'Paraguay',             match_date: '2026-06-29T20:30:00Z', venue: 'Gillette Stadium, Boston',          home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'Netherlands',  away_team: 'Morocco',              match_date: '2026-06-30T01:00:00Z', venue: 'Estadio BBVA, Monterrey',           home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'Ivory Coast',  away_team: 'Norway',               match_date: '2026-06-30T17:00:00Z', venue: 'AT&T Stadium, Dallas',              home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'France',       away_team: 'Sweden',               match_date: '2026-06-30T21:00:00Z', venue: 'MetLife Stadium, New York/NJ',      home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'Mexico',       away_team: 'Ecuador',              match_date: '2026-07-01T01:00:00Z', venue: 'Estadio Azteca, Mexico City',       home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'England',      away_team: 'DR Congo',             match_date: '2026-07-01T16:00:00Z', venue: 'Mercedes-Benz Stadium, Atlanta',    home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'Belgium',      away_team: 'Senegal',              match_date: '2026-07-01T20:00:00Z', venue: 'Lumen Field, Seattle',              home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'USA',          away_team: 'Bosnia & Herzegovina', match_date: '2026-07-02T00:00:00Z', venue: "Levi's Stadium, Santa Clara",       home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'Spain',        away_team: 'Austria',              match_date: '2026-07-02T19:00:00Z', venue: 'SoFi Stadium, Los Angeles',         home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'Portugal',     away_team: 'Croatia',              match_date: '2026-07-02T23:00:00Z', venue: 'BMO Field, Toronto',                home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'Switzerland',  away_team: 'Algeria',              match_date: '2026-07-03T03:00:00Z', venue: 'BC Place, Vancouver',               home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'Australia',    away_team: 'Egypt',                match_date: '2026-07-03T18:00:00Z', venue: 'AT&T Stadium, Dallas',              home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'Argentina',    away_team: 'Cape Verde',           match_date: '2026-07-03T22:00:00Z', venue: 'Hard Rock Stadium, Miami',          home_score: null, away_score: null, status: 'upcoming' },
+  { id: id++, stage: 'Round of 32', home_team: 'Colombia',     away_team: 'Ghana',                match_date: '2026-07-04T01:30:00Z', venue: 'Arrowhead Stadium, Kansas City',    home_score: null, away_score: null, status: 'upcoming' },
   // Round of 16 — July 4–7
   ...['2026-07-04T21:00:00Z','2026-07-04T17:00:00Z','2026-07-05T20:00:00Z','2026-07-05T23:00:00Z',
       '2026-07-06T19:00:00Z','2026-07-06T21:00:00Z','2026-07-07T16:00:00Z','2026-07-07T17:00:00Z',
