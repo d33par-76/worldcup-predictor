@@ -75,6 +75,7 @@ export default function Predict({ userName, onSetName }) {
   const allUpcoming = matches.filter(m => m.status === 'upcoming')
   const finished = matches.filter(m => m.status === 'finished')
   const live = matches.filter(m => m.status === 'live')
+  const r32 = matches.filter(m => m.stage === 'Round of 32')
 
   const query = search.trim().toLowerCase()
 
@@ -82,6 +83,7 @@ export default function Predict({ userName, onSetName }) {
     filter === 'all' ? matches
     : filter === 'upcoming' ? upcoming
     : filter === 'live' ? live
+    : filter === 'r32' ? r32
     : finished
 
   const displayMatches = query
@@ -143,6 +145,7 @@ export default function Predict({ userName, onSetName }) {
           ['upcoming', `Upcoming (${upcoming.length})`],
           ['live', `Live (${live.length})`],
           ['finished', `Finished (${finished.length})`],
+          ['r32', `R32 (${r32.length})`],
         ].map(([val, label]) => (
           <button
             key={val}
