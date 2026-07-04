@@ -55,8 +55,8 @@ export default function Leaderboard({ userName }) {
       : b.total - a.total || b.correct - a.correct
   )
 
-  const gradedMatches = matches.filter(m => m.home_score !== null).sort((a, b) => new Date(b.match_date) - new Date(a.match_date))
   const picksMap = Object.fromEntries(userPicks.map(p => [p.match_id, p.predicted_winner]))
+  const pickedMatches = matches.filter(m => picksMap[m.id]).sort((a, b) => new Date(b.match_date) - new Date(a.match_date))
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
@@ -141,26 +141,24 @@ export default function Leaderboard({ userName }) {
                   <div className="border border-fifa-gold border-t-0 rounded-b-xl bg-gray-800/80 px-4 py-3">
                     {picksLoading ? (
                       <div className="text-center text-gray-400 py-4 text-sm">Loading picks…</div>
-                    ) : gradedMatches.length === 0 ? (
-                      <div className="text-center text-gray-500 py-4 text-sm">No graded matches yet.</div>
+                    ) : pickedMatches.length === 0 ? (
+                      <div className="text-center text-gray-500 py-4 text-sm">No picks made yet.</div>
                     ) : (
                       <div className="space-y-1.5">
-                        {gradedMatches.map(m => {
+                        {pickedMatches.map(m => {
                           const predicted = picksMap[m.id]
-                          if (!predicted) return null
                           const { text, color, icon } = resultLabel(m, predicted)
                           return (
                             <div key={m.id} className="flex items-center gap-2 text-xs">
                               <span className={`font-bold w-4 text-center ${color}`}>{icon}</span>
                               <span className="text-gray-400 flex-1">{m.home_team} vs {m.away_team}</span>
-                              <span className="text-gray-500">{m.home_score}–{m.away_score}</span>
+                              <span className="text-gray-500">
+                                {m.home_score !== null ? `${m.home_score}–${m.away_score}` : 'upcoming'}
+                              </span>
                               <span className={`font-semibold w-24 text-right ${color}`}>{text}</span>
                             </div>
                           )
                         })}
-                        {gradedMatches.every(m => !picksMap[m.id]) && (
-                          <div className="text-center text-gray-500 py-2 text-sm">No picks on graded matches.</div>
-                        )}
                       </div>
                     )}
                   </div>
