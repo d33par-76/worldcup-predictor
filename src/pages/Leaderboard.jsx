@@ -55,7 +55,7 @@ export default function Leaderboard({ userName }) {
       : b.total - a.total || b.correct - a.correct
   )
 
-  const gradedMatches = matches.filter(m => m.home_score !== null)
+  const gradedMatches = matches.filter(m => m.home_score !== null).sort((a, b) => new Date(b.match_date) - new Date(a.match_date))
   const picksMap = Object.fromEntries(userPicks.map(p => [p.match_id, p.predicted_winner]))
 
   return (
