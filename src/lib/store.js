@@ -163,8 +163,11 @@ export async function refreshFromApi() {
         const comp = event.competitions?.[0]
         if (!comp) continue
         const statusDesc = comp.status?.type?.description || ''
-        const finished = statusDesc === 'Full Time' || statusDesc === 'Final' || statusDesc === 'FT'
-        const live = statusDesc === 'In Progress' || statusDesc === 'Halftime'
+        const statusName = comp.status?.type?.name || ''
+        const finished = ['Full Time', 'Final', 'FT', 'Ended', 'End', 'After Extra Time', 'After Penalties'].includes(statusDesc)
+          || statusName === 'STATUS_FINAL'
+        const live = ['In Progress', 'Halftime', 'Half Time', 'Extra Time'].includes(statusDesc)
+          || statusName === 'STATUS_IN_PROGRESS'
         if (!finished && !live) continue
 
         // competitors: find home and away by homeAway field
