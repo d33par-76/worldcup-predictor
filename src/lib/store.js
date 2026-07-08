@@ -243,7 +243,7 @@ function calcPoints(match, predictedWinner) {
   return 0
 }
 
-async function recalcPoints() {
+export async function recalcPoints() {
   if (!isConfigured) return
   const { data: matches } = await supabase.from('matches').select('*').eq('status', 'finished')
   const { data: preds } = await supabase.from('predictions').select('*')

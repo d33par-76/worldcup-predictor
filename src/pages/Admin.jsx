@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getMatches, updateMatchResult, updateMatchTeams } from '../lib/store'
+import { getMatches, updateMatchResult, updateMatchTeams, recalcPoints } from '../lib/store'
 import { STAGE_ORDER } from '../data/schedule'
 
 const ADMIN_PIN = import.meta.env.VITE_ADMIN_PIN || '2026'
@@ -13,6 +13,19 @@ export default function Admin() {
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
   const [stageFilter, setStageFilter] = useState('all')
+  const [recalcing, setRecalcing] = useState(false)
+
+  async function handleRecalc() {
+    setRecalcing(true)
+    setMsg('')
+    try {
+      await recalcPoints()
+      setMsg('✅ Points recalculated!')
+    } catch (e) {
+      setMsg('❌ Error: ' + e.message)
+    }
+    setRecalcing(false)
+  }
 
   useEffect(() => {
     if (authed) getMatches().then(setMatches)
@@ -72,7 +85,16 @@ export default function Admin() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-black mb-1">Admin Panel</h1>
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="text-2xl font-black">Admin Panel</h1>
+        <button
+          onClick={handleRecalc}
+          disabled={recalcing}
+          className="btn-secondary text-sm py-1.5 px-4 disabled:opacity-50"
+        >
+          {recalcing ? 'Recalculating…' : '🔁 Recalculate Points'}
+        </button>
+      </div>
       <p className="text-gray-400 text-sm mb-5">Update match results, team names, and statuses</p>
       {msg && <div className="mb-4 text-sm font-semibold text-center">{msg}</div>}
 
