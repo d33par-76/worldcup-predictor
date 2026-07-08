@@ -69,10 +69,8 @@ export default function Predict({ userName, onSetName }) {
   }
 
   const now = new Date()
-  const in3Days = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
-
-  const upcoming = matches.filter(m => m.status === 'upcoming' && new Date(m.match_date) >= now && new Date(m.match_date) <= in3Days)
-  const allUpcoming = matches.filter(m => m.status === 'upcoming')
+  const upcoming = matches.filter(m => m.status === 'upcoming' && new Date(m.match_date) >= now)
+  const allUpcoming = upcoming
   const finished = matches.filter(m => m.status === 'finished')
   const live = matches.filter(m => m.status === 'live')
   const r32 = matches.filter(m => m.stage === 'Round of 32')
