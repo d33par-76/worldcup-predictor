@@ -34,6 +34,8 @@ export default function Schedule() {
       ? matches.filter(m => m.status === 'upcoming' || m.status === 'live')
       : filter === 'completed'
       ? matches.filter(m => m.status === 'finished')
+      : filter === 'r32'
+      ? matches.filter(m => m.stage === 'Round of 32')
       : matches.filter(m => {
           const groupLetter = filter.replace('Group ', '')
           const groupTeams = GROUPS[groupLetter] || []
@@ -80,6 +82,7 @@ export default function Schedule() {
         {[
           ['upcoming', `Upcoming (${matches.filter(m => m.status === 'upcoming' || m.status === 'live').length})`],
           ['completed', `Completed (${matches.filter(m => m.status === 'finished').length})`],
+          ['r32', `R32 (${matches.filter(m => m.stage === 'Round of 32').length})`],
         ].map(([val, label]) => (
           <button
             key={val}

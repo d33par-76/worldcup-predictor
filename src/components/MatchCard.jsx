@@ -26,10 +26,13 @@ function StatusBadge({ status }) {
   return null
 }
 
+const KNOCKOUT_STAGES = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-final', 'Third Place', 'Final']
+
 export default function MatchCard({ match, prediction, onPredict, locked, compact }) {
   const { home_team, away_team, match_date, venue, home_score, away_score, stage, status } = match
   const stageColor = STAGE_COLORS[stage] ?? 'bg-gray-800 text-gray-300'
   const { pst, nl } = formatTimes(match_date)
+  const isKnockout = KNOCKOUT_STAGES.includes(stage)
 
   const canPredict = status === 'upcoming' && !locked
   const actual =
@@ -41,7 +44,7 @@ export default function MatchCard({ match, prediction, onPredict, locked, compac
 
   function pointLabel() {
     if (!prediction || actual === null) return null
-    const pts = prediction === actual ? 2 : (prediction === 'draw' || actual === 'draw') ? 1 : 0
+    const pts = prediction === actual ? 2 : (!isKnockout && (prediction === 'draw' || actual === 'draw')) ? 1 : 0
     const colors = { 2: 'text-green-400', 1: 'text-yellow-400', 0: 'text-red-400' }
     return <span className={`text-sm font-bold ${colors[pts]}`}>{pts === 2 ? '+2 pts' : pts === 1 ? '+1 pt' : '+0 pts'}</span>
   }
@@ -71,7 +74,7 @@ export default function MatchCard({ match, prediction, onPredict, locked, compac
         )}
         {status === 'upcoming' && onPredict && (
           <div className="flex gap-1 flex-shrink-0">
-            {[{ val: 'home', label: flag(home_team) }, { val: 'draw', label: '🤝' }, { val: 'away', label: flag(away_team) }].map(({ val, label }) => (
+            {[{ val: 'home', label: flag(home_team) }, ...(!isKnockout ? [{ val: 'draw', label: '🤝' }] : []), { val: 'away', label: flag(away_team) }].map(({ val, label }) => (
               <button
                 key={val}
                 disabled={locked}
@@ -128,7 +131,7 @@ export default function MatchCard({ match, prediction, onPredict, locked, compac
         <div className="mt-4 flex gap-2 text-xs font-semibold">
           {[
             { val: 'home', label: `🏠 ${home_team}` },
-            { val: 'draw', label: '🤝 Draw' },
+            ...(!isKnockout ? [{ val: 'draw', label: '🤝 Draw' }] : []),
             { val: 'away', label: `✈️ ${away_team}` },
           ].map(({ val, label }) => {
             const selected = prediction === val

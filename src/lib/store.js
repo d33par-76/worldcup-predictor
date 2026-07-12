@@ -174,6 +174,10 @@ const ESPN_NAME_MAP = {
   'Turkey': 'Türkiye',
   "Cote d'Ivoire": 'Ivory Coast',
   'Congo': 'DR Congo',
+  'Congo DR': 'DR Congo',
+  'Congo, DR': 'DR Congo',
+  'Democratic Republic of the Congo': 'DR Congo',
+  'Democratic Republic of Congo': 'DR Congo',
   'Bosnia-Herzegovina': 'Bosnia & Herzegovina',
   'Bosnia and Herzegovina': 'Bosnia & Herzegovina',
   'Cape Verde Islands': 'Cape Verde',
@@ -201,8 +205,11 @@ export async function refreshFromApi() {
         const comp = event.competitions?.[0]
         if (!comp) continue
         const statusDesc = comp.status?.type?.description || ''
-        const finished = statusDesc === 'Full Time' || statusDesc === 'Final' || statusDesc === 'FT'
-        const live = statusDesc === 'In Progress' || statusDesc === 'Halftime'
+        const statusName = comp.status?.type?.name || ''
+        const finished = ['Full Time', 'Final', 'FT', 'Ended', 'End', 'After Extra Time', 'After Penalties'].includes(statusDesc)
+          || statusName === 'STATUS_FINAL'
+        const live = ['In Progress', 'Halftime', 'Half Time', 'Extra Time'].includes(statusDesc)
+          || statusName === 'STATUS_IN_PROGRESS'
         if (!finished && !live) continue
 
         // competitors: find home and away by homeAway field
@@ -264,6 +271,8 @@ export async function refreshFromApi() {
 
 // ── POINTS CALCULATION ───────────────────────────────────────────────────────
 
+const KNOCKOUT_STAGES = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-final', 'Third Place', 'Final']
+
 function calcPoints(match, predictedWinner) {
   if (match.home_score === null || match.away_score === null) return null
   const actual =
@@ -271,11 +280,12 @@ function calcPoints(match, predictedWinner) {
     : match.away_score > match.home_score ? 'away'
     : 'draw'
   if (predictedWinner === actual) return 2
-  if (predictedWinner === 'draw' || actual === 'draw') return 1
+  const isKnockout = KNOCKOUT_STAGES.includes(match.stage)
+  if (!isKnockout && (predictedWinner === 'draw' || actual === 'draw')) return 1
   return 0
 }
 
-async function recalcPoints() {
+export async function recalcPoints() {
   if (!isConfigured) return
   const { data: matches } = await supabase.from('matches').select('*').eq('status', 'finished')
   const { data: preds } = await supabase.from('predictions').select('*')
