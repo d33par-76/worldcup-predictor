@@ -4,7 +4,7 @@ import { STAGE_ORDER } from '../data/schedule'
 import MatchCard from '../components/MatchCard'
 import { useAppContext } from '../lib/context'
 
-const LOCK_BEFORE_MS = 3 * 60 * 60 * 1000 // 3 hours
+const LOCK_BEFORE_MS = 30 * 60 * 1000 // 30 minutes
 
 function isMatchLocked(match) {
   if (match.status !== 'upcoming') return true
