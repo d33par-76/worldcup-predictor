@@ -1,5 +1,5 @@
 import { supabase, isConfigured } from './supabase'
-import { MATCHES } from '../data/schedule'
+import { MATCHES, BRACKET_MAP } from '../data/schedule'
 
 // ── LOCAL STORAGE KEYS ──────────────────────────────────────────────────────
 const SCHEDULE_VERSION = 'v3' // bump when schedule.js teams/dates change
@@ -38,15 +38,57 @@ export async function updateMatchResult(id, homeScore, awayScore, status) {
       .eq('id', id)
     if (error) throw error
     await recalcPoints()
-    return
+  } else {
+    const matches = lsGet(LS_MATCHES, MATCHES)
+    const idx = matches.findIndex(m => m.id === id)
+    if (idx !== -1) {
+      matches[idx] = { ...matches[idx], home_score: homeScore, away_score: awayScore, status }
+      lsSet(LS_MATCHES, matches)
+    }
+    recalcLocalPoints()
   }
-  const matches = lsGet(LS_MATCHES, MATCHES)
-  const idx = matches.findIndex(m => m.id === id)
-  if (idx !== -1) {
-    matches[idx] = { ...matches[idx], home_score: homeScore, away_score: awayScore, status }
-    lsSet(LS_MATCHES, matches)
+  if (status === 'finished' && homeScore !== awayScore) {
+    await advanceBracket(id, homeScore, awayScore)
   }
-  recalcLocalPoints()
+}
+
+async function advanceBracket(matchId, homeScore, awayScore) {
+  const bracket = BRACKET_MAP[matchId]
+  if (!bracket) return
+
+  const winnerSlot = homeScore > awayScore ? 'home' : 'away'
+  const loserSlot  = winnerSlot === 'home' ? 'away' : 'home'
+
+  let match
+  if (isConfigured) {
+    const { data } = await supabase.from('matches').select('*').eq('id', matchId).single()
+    match = data
+  } else {
+    match = lsGet(LS_MATCHES, MATCHES).find(m => m.id === matchId)
+  }
+  if (!match) return
+
+  const winnerTeam = match[`${winnerSlot}_team`]
+  const loserTeam  = match[`${loserSlot}_team`]
+
+  await setMatchTeamSlot(bracket.next, bracket.slot, winnerTeam)
+  if (bracket.loser_next) {
+    await setMatchTeamSlot(bracket.loser_next, bracket.loser_slot, loserTeam)
+  }
+}
+
+async function setMatchTeamSlot(matchId, slot, team) {
+  const field = slot === 'home' ? 'home_team' : 'away_team'
+  if (isConfigured) {
+    await supabase.from('matches').update({ [field]: team }).eq('id', matchId)
+  } else {
+    const matches = lsGet(LS_MATCHES, MATCHES)
+    const idx = matches.findIndex(m => m.id === matchId)
+    if (idx !== -1) {
+      matches[idx] = { ...matches[idx], [field]: team }
+      lsSet(LS_MATCHES, matches)
+    }
+  }
 }
 
 export async function updateMatchTeams(id, homeTeam, awayTeam) {
