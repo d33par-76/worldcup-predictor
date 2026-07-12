@@ -188,40 +188,40 @@ export const MATCHES = [...groupMatches, ...knockoutMatches]
 // slot: 'home' | 'away' — which team slot in the next match the winner fills.
 // Draws (pen shootouts) do NOT auto-advance; admin must update manually.
 export const BRACKET_MAP = {
-  // Round of 32 → Round of 16
-  73:  { next: 89,  slot: 'away' },  // S.Africa/Canada   → R16 Morocco vs Canada
-  76:  { next: 89,  slot: 'home' },  // Netherlands/Morocco → R16 Morocco vs Canada
-  78:  { next: 90,  slot: 'home' },  // France/Sweden      → R16 France vs Paraguay
-  75:  { next: 90,  slot: 'away' },  // Germany/Paraguay   → R16 France vs Paraguay
-  77:  { next: 91,  slot: 'home' },  // IvoryCoast/Norway  → R16 Norway vs Brazil
-  74:  { next: 91,  slot: 'away' },  // Brazil/Japan       → R16 Norway vs Brazil
-  80:  { next: 92,  slot: 'home' },  // England/DRCongo    → R16 England vs Mexico
-  79:  { next: 92,  slot: 'away' },  // Mexico/Ecuador     → R16 England vs Mexico
-  83:  { next: 93,  slot: 'home' },  // Spain/Austria      → R16 Spain vs Portugal
-  84:  { next: 93,  slot: 'away' },  // Portugal/Croatia   → R16 Spain vs Portugal
-  81:  { next: 94,  slot: 'home' },  // Belgium/Senegal    → R16 Belgium vs USA
-  82:  { next: 94,  slot: 'away' },  // USA/Bosnia         → R16 Belgium vs USA
-  87:  { next: 95,  slot: 'home' },  // Argentina/CapeVerde → R16 Argentina vs Egypt
-  86:  { next: 95,  slot: 'away' },  // Australia/Egypt    → R16 Argentina vs Egypt
-  85:  { next: 96,  slot: 'home' },  // Switzerland/Algeria → R16 Switzerland vs Colombia
-  88:  { next: 96,  slot: 'away' },  // Colombia/Ghana     → R16 Switzerland vs Colombia
-  // Round of 16 → Quarter-finals
-  89:  { next: 97,  slot: 'away' },  // Morocco/Canada     → QF France vs Morocco
-  90:  { next: 97,  slot: 'home' },  // France/Paraguay    → QF France vs Morocco
-  91:  { next: 99,  slot: 'away' },  // Norway/Brazil      → QF England vs Norway
-  92:  { next: 99,  slot: 'home' },  // England/Mexico     → QF England vs Norway
-  93:  { next: 98,  slot: 'home' },  // Spain/Portugal     → QF Spain vs Belgium
-  94:  { next: 98,  slot: 'away' },  // Belgium/USA        → QF Spain vs Belgium
-  95:  { next: 100, slot: 'home' },  // Argentina/Egypt    → QF Argentina vs Switzerland
-  96:  { next: 100, slot: 'away' },  // Switzerland/Colombia → QF Argentina vs Switzerland
-  // Quarter-finals → Semi-finals
-  97:  { next: 101, slot: 'home' },  // France/Morocco     → SF France vs Spain
-  98:  { next: 101, slot: 'away' },  // Spain/Belgium      → SF France vs Spain
-  99:  { next: 102, slot: 'home' },  // England/Norway     → SF England vs Argentina
-  100: { next: 102, slot: 'away' },  // Argentina/Swiss    → SF England vs Argentina
-  // Semi-finals → Final + Third Place
-  101: { next: 104, slot: 'home', loser_next: 103, loser_slot: 'home' },
-  102: { next: 104, slot: 'away', loser_next: 103, loser_slot: 'away' },
+  // Round of 32 → Round of 16 (Supabase IDs 282–305)
+  282: { next: 298, slot: 'home' },  // S.Africa/Canada    → R16 id298 Canada vs Morocco
+  285: { next: 298, slot: 'away' },  // Netherlands/Morocco → R16 id298
+  284: { next: 299, slot: 'home' },  // Germany/Paraguay   → R16 id299 Paraguay vs France
+  287: { next: 299, slot: 'away' },  // France/Sweden      → R16 id299
+  283: { next: 300, slot: 'home' },  // Brazil/Japan       → R16 id300 Brazil vs Norway
+  286: { next: 300, slot: 'away' },  // IvoryCoast/Norway  → R16 id300
+  288: { next: 301, slot: 'home' },  // Mexico/Ecuador     → R16 id301 Mexico vs England
+  289: { next: 301, slot: 'away' },  // England/DRCongo    → R16 id301
+  293: { next: 302, slot: 'home' },  // Portugal/Croatia   → R16 id302 Portugal vs Spain
+  292: { next: 302, slot: 'away' },  // Spain/Austria      → R16 id302
+  291: { next: 303, slot: 'home' },  // USA/Bosnia         → R16 id303 USA vs Belgium
+  290: { next: 303, slot: 'away' },  // Belgium/Senegal    → R16 id303
+  296: { next: 304, slot: 'home' },  // Argentina/CapeVerde → R16 id304 Argentina vs Egypt
+  295: { next: 304, slot: 'away' },  // Australia/Egypt    → R16 id304
+  294: { next: 305, slot: 'home' },  // Switzerland/Algeria → R16 id305 Switzerland vs Colombia
+  297: { next: 305, slot: 'away' },  // Colombia/Ghana     → R16 id305
+  // Round of 16 → Quarter-finals (Supabase IDs 306–309)
+  298: { next: 306, slot: 'away' },  // Canada/Morocco     → QF id306 France vs Morocco
+  299: { next: 306, slot: 'home' },  // Paraguay/France    → QF id306
+  300: { next: 308, slot: 'home' },  // Brazil/Norway      → QF id308 Norway vs England
+  301: { next: 308, slot: 'away' },  // Mexico/England     → QF id308
+  302: { next: 307, slot: 'away' },  // Portugal/Spain     → QF id307 Spain vs Belgium
+  303: { next: 307, slot: 'away' },  // USA/Belgium        → QF id307
+  304: { next: 309, slot: 'home' },  // Argentina/Egypt    → QF id309 Argentina vs Switzerland
+  305: { next: 309, slot: 'away' },  // Switzerland/Colombia → QF id309
+  // Quarter-finals → Semi-finals (Supabase IDs 310–311)
+  306: { next: 310, slot: 'home' },  // France/Morocco     → SF id310 France vs Spain
+  307: { next: 310, slot: 'away' },  // Spain/Belgium      → SF id310
+  308: { next: 311, slot: 'home' },  // Norway/England     → SF id311 England vs Argentina
+  309: { next: 311, slot: 'away' },  // Argentina/Swiss    → SF id311
+  // Semi-finals → Final + Third Place (Supabase IDs 312–313)
+  310: { next: 313, slot: 'home', loser_next: 312, loser_slot: 'home' },
+  311: { next: 313, slot: 'away', loser_next: 312, loser_slot: 'away' },
 }
 
 export const STAGE_ORDER = [
