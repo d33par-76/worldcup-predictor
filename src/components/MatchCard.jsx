@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { FLAG_EMOJI, STAGE_COLORS } from '../data/schedule'
 
 function formatTimes(iso) {
@@ -42,11 +42,15 @@ export default function MatchCard({ match, prediction, predScore, onPredict, loc
   const [scoreAway, setScoreAway] = useState(predScore?.away ?? '')
   const [drawPens, setDrawPens] = useState(false)
   const [pensWinner, setPensWinner] = useState(prediction ?? '')
+  const syncedRef = useRef(false)
 
   useEffect(() => {
-    setScoreHome(predScore?.home ?? '')
-    setScoreAway(predScore?.away ?? '')
-  }, [predScore?.home, predScore?.away])
+    if (!syncedRef.current && predScore != null) {
+      setScoreHome(predScore.home ?? '')
+      setScoreAway(predScore.away ?? '')
+      syncedRef.current = true
+    }
+  }, [predScore])
 
   useEffect(() => {
     if (prediction) setPensWinner(prediction)

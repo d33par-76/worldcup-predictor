@@ -51,7 +51,7 @@ export default function Predict({ userName, onSetName }) {
       await savePrediction(userName, matchId, winner, homeScore, awayScore)
     } catch {
       setPredictions(p => ({ ...p, [matchId]: prev }))
-      setPredScores(s => ({ ...s, [matchId]: prevScore }))
+      // don't revert score inputs — keep them visible so user can retry
     }
   }
 
