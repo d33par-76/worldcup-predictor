@@ -8,12 +8,18 @@ function formatTimes(iso) {
     timeZone: 'America/Los_Angeles',
     timeZoneName: 'short',
   })
+  const pstShort = d.toLocaleString('en-US', {
+    month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+    timeZone: 'America/Los_Angeles',
+    timeZoneName: 'short',
+  })
   const nlTime = d.toLocaleString('en-US', {
     hour: '2-digit', minute: '2-digit',
     timeZone: 'Europe/Amsterdam',
   })
   const nl = `${nlTime} NED`
-  return { pst, nl }
+  return { pst, pstShort, nl }
 }
 
 function flag(team) {
@@ -33,7 +39,7 @@ const SCORE_PICKER_STAGES = ['Final', 'Third Place']
 export default function MatchCard({ match, prediction, predScore, scoreInput, onScoreChange, onPredict, locked, compact }) {
   const { home_team, away_team, match_date, venue, home_score, away_score, stage, status } = match
   const stageColor = STAGE_COLORS[stage] ?? 'bg-gray-800 text-gray-300'
-  const { pst, nl } = formatTimes(match_date)
+  const { pst, pstShort, nl } = formatTimes(match_date)
   const isKnockout = KNOCKOUT_STAGES.includes(stage)
   const hasScorePicker = SCORE_PICKER_STAGES.includes(stage)
 
@@ -98,8 +104,8 @@ export default function MatchCard({ match, prediction, predScore, scoreInput, on
           <span className="font-bold text-sm truncate">{away_team}</span>
           <span className="text-lg flex-shrink-0">{flag(away_team)}</span>
         </div>
-        <div className="text-right flex-shrink-0 text-xs text-gray-400 dark:text-gray-500 leading-tight">
-          <div>{pst}</div>
+        <div className="text-right flex-shrink-0 text-xs text-gray-400 dark:text-gray-500 leading-tight max-w-[110px]">
+          <div>{pstShort}</div>
           <div>{nl}</div>
         </div>
         {prediction && (
