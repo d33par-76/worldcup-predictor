@@ -27,6 +27,7 @@ function StatusBadge({ status }) {
 }
 
 const KNOCKOUT_STAGES = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-final', 'Third Place', 'Final']
+const STAGE_WIN_POINTS = { 'Final': 200, 'Third Place': 100 }
 
 export default function MatchCard({ match, prediction, onPredict, locked, compact }) {
   const { home_team, away_team, match_date, venue, home_score, away_score, stage, status } = match
@@ -44,9 +45,10 @@ export default function MatchCard({ match, prediction, onPredict, locked, compac
 
   function pointLabel() {
     if (!prediction || actual === null) return null
-    const pts = prediction === actual ? 2 : (!isKnockout && (prediction === 'draw' || actual === 'draw')) ? 1 : 0
-    const colors = { 2: 'text-green-400', 1: 'text-yellow-400', 0: 'text-red-400' }
-    return <span className={`text-sm font-bold ${colors[pts]}`}>{pts === 2 ? '+2 pts' : pts === 1 ? '+1 pt' : '+0 pts'}</span>
+    const winPts = STAGE_WIN_POINTS[stage] ?? 2
+    const pts = prediction === actual ? winPts : (!isKnockout && (prediction === 'draw' || actual === 'draw')) ? 1 : 0
+    const color = pts === winPts ? 'text-green-400' : pts === 1 ? 'text-yellow-400' : 'text-red-400'
+    return <span className={`text-sm font-bold ${color}`}>{pts > 0 ? `+${pts} pts` : '+0 pts'}</span>
   }
 
   if (compact) {

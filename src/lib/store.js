@@ -273,13 +273,16 @@ export async function refreshFromApi() {
 
 const KNOCKOUT_STAGES = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-final', 'Third Place', 'Final']
 
+const STAGE_WIN_POINTS = { 'Final': 200, 'Third Place': 100 }
+
 function calcPoints(match, predictedWinner) {
   if (match.home_score === null || match.away_score === null) return null
   const actual =
     match.home_score > match.away_score ? 'home'
     : match.away_score > match.home_score ? 'away'
     : 'draw'
-  if (predictedWinner === actual) return 2
+  const winPoints = STAGE_WIN_POINTS[match.stage] ?? 2
+  if (predictedWinner === actual) return winPoints
   const isKnockout = KNOCKOUT_STAGES.includes(match.stage)
   if (!isKnockout && (predictedWinner === 'draw' || actual === 'draw')) return 1
   return 0
