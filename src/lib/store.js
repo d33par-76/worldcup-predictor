@@ -160,7 +160,7 @@ function aggregateLeaderboard(predictions) {
     if (p.points !== null) {
       map[p.user_name].total += p.points
       map[p.user_name].total_picks += 1
-      if (p.points === 2) map[p.user_name].correct += 1
+      if (p.points > 0) map[p.user_name].correct += 1
     }
   }
   return Object.values(map).sort((a, b) => b.total - a.total || b.correct - a.correct)

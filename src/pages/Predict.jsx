@@ -91,11 +91,16 @@ export default function Predict({ userName, onSetName }) {
       )
     : baseMatches
 
+  const STAGE_WIN_PTS = { 'Final': 200, 'Third Place': 100 }
+  const KNOCKOUT = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-final', 'Third Place', 'Final']
   const totalPoints = Object.entries(predictions).reduce((sum, [matchId, winner]) => {
     const m = matches.find(m => m.id === Number(matchId))
     if (!m || m.home_score === null) return sum
     const actual = m.home_score > m.away_score ? 'home' : m.away_score > m.home_score ? 'away' : 'draw'
-    return sum + (winner === actual ? 2 : (winner === 'draw' || actual === 'draw') ? 1 : 0)
+    const winPts = STAGE_WIN_PTS[m.stage] ?? 2
+    if (winner === actual) return sum + winPts
+    if (!KNOCKOUT.includes(m.stage) && (winner === 'draw' || actual === 'draw')) return sum + 1
+    return sum
   }, 0)
 
   const pickedCount = Object.keys(predictions).length
