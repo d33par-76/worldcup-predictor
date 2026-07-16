@@ -16,6 +16,7 @@ export default function Predict({ userName, onSetName }) {
   const [nameInput, setNameInput] = useState('')
   const [matches, setMatches] = useState([])
   const [predictions, setPredictions] = useState({})
+  const [predScores, setPredScores] = useState({})
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('upcoming')
   const [search, setSearch] = useState('')
@@ -25,20 +26,32 @@ export default function Predict({ userName, onSetName }) {
     Promise.all([getMatches(), getPredictions(userName)]).then(([m, p]) => {
       setMatches(m)
       const map = {}
-      for (const pred of p) map[pred.match_id] = pred.predicted_winner
+      const scoreMap = {}
+      for (const pred of p) {
+        map[pred.match_id] = pred.predicted_winner
+        if (pred.predicted_home_score !== null || pred.predicted_away_score !== null) {
+          scoreMap[pred.match_id] = { home: pred.predicted_home_score, away: pred.predicted_away_score }
+        }
+      }
       setPredictions(map)
+      setPredScores(scoreMap)
       setLoading(false)
     })
   }, [userName, refreshKey])
 
-  async function handlePredict(matchId, winner) {
+  async function handlePredict(matchId, winner, homeScore = null, awayScore = null) {
     if (!userName) return
     const prev = predictions[matchId]
+    const prevScore = predScores[matchId]
     setPredictions(p => ({ ...p, [matchId]: winner }))
+    if (homeScore !== null || awayScore !== null) {
+      setPredScores(s => ({ ...s, [matchId]: { home: homeScore, away: awayScore } }))
+    }
     try {
-      await savePrediction(userName, matchId, winner)
+      await savePrediction(userName, matchId, winner, homeScore, awayScore)
     } catch {
       setPredictions(p => ({ ...p, [matchId]: prev }))
+      setPredScores(s => ({ ...s, [matchId]: prevScore }))
     }
   }
 
@@ -173,6 +186,7 @@ export default function Predict({ userName, onSetName }) {
               key={m.id}
               match={m}
               prediction={predictions[m.id]}
+              predScore={predScores[m.id]}
               onPredict={handlePredict}
               locked={isMatchLocked(m)}
               compact={compact}

@@ -121,10 +121,10 @@ export async function getPredictions(userName) {
   return userName ? all.filter(p => p.user_name === userName) : all
 }
 
-export async function savePrediction(userName, matchId, predictedWinner) {
+export async function savePrediction(userName, matchId, predictedWinner, predictedHomeScore = null, predictedAwayScore = null) {
   if (isConfigured) {
     const { error } = await supabase.from('predictions').upsert(
-      { user_name: userName, match_id: matchId, predicted_winner: predictedWinner, points: null },
+      { user_name: userName, match_id: matchId, predicted_winner: predictedWinner, predicted_home_score: predictedHomeScore, predicted_away_score: predictedAwayScore, points: null },
       { onConflict: 'user_name,match_id' }
     )
     if (error) throw error
@@ -132,7 +132,7 @@ export async function savePrediction(userName, matchId, predictedWinner) {
   }
   const all = lsGet(LS_PREDICTIONS, [])
   const existing = all.findIndex(p => p.user_name === userName && p.match_id === matchId)
-  const entry = { user_name: userName, match_id: matchId, predicted_winner: predictedWinner, points: null }
+  const entry = { user_name: userName, match_id: matchId, predicted_winner: predictedWinner, predicted_home_score: predictedHomeScore, predicted_away_score: predictedAwayScore, points: null }
   if (existing !== -1) all[existing] = entry
   else all.push(entry)
   lsSet(LS_PREDICTIONS, all)
@@ -275,17 +275,28 @@ const KNOCKOUT_STAGES = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-fi
 
 const STAGE_WIN_POINTS = { 'Final': 200, 'Third Place': 100 }
 
-function calcPoints(match, predictedWinner) {
+const SCORE_BONUS_STAGES = ['Final', 'Third Place']
+const SCORE_BONUS = 100
+
+function calcPoints(match, predictedWinner, predictedHomeScore = null, predictedAwayScore = null) {
   if (match.home_score === null || match.away_score === null) return null
   const actual =
     match.home_score > match.away_score ? 'home'
     : match.away_score > match.home_score ? 'away'
     : 'draw'
   const winPoints = STAGE_WIN_POINTS[match.stage] ?? 2
-  if (predictedWinner === actual) return winPoints
-  const isKnockout = KNOCKOUT_STAGES.includes(match.stage)
-  if (!isKnockout && (predictedWinner === 'draw' || actual === 'draw')) return 1
-  return 0
+  if (predictedWinner !== actual) {
+    const isKnockout = KNOCKOUT_STAGES.includes(match.stage)
+    if (!isKnockout && (predictedWinner === 'draw' || actual === 'draw')) return 1
+    return 0
+  }
+  let pts = winPoints
+  if (SCORE_BONUS_STAGES.includes(match.stage) && predictedHomeScore !== null && predictedAwayScore !== null) {
+    if (predictedHomeScore === match.home_score && predictedAwayScore === match.away_score) {
+      pts += SCORE_BONUS
+    }
+  }
+  return pts
 }
 
 export async function recalcPoints() {
@@ -297,7 +308,7 @@ export async function recalcPoints() {
     .filter(p => matches.find(m => m.id === p.match_id))
     .map(p => {
       const match = matches.find(m => m.id === p.match_id)
-      return { ...p, points: calcPoints(match, p.predicted_winner) }
+      return { ...p, points: calcPoints(match, p.predicted_winner, p.predicted_home_score, p.predicted_away_score) }
     })
   for (const u of updates) {
     await supabase.from('predictions').update({ points: u.points }).eq('id', u.id)
@@ -310,7 +321,7 @@ function recalcLocalPoints() {
   const updated = preds.map(p => {
     const match = matches.find(m => m.id === p.match_id)
     if (!match || match.status !== 'finished') return p
-    return { ...p, points: calcPoints(match, p.predicted_winner) }
+    return { ...p, points: calcPoints(match, p.predicted_winner, p.predicted_home_score, p.predicted_away_score) }
   })
   lsSet(LS_PREDICTIONS, updated)
 }

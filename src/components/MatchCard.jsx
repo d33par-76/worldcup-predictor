@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { FLAG_EMOJI, STAGE_COLORS } from '../data/schedule'
 
 function formatTimes(iso) {
@@ -28,12 +29,44 @@ function StatusBadge({ status }) {
 
 const KNOCKOUT_STAGES = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-final', 'Third Place', 'Final']
 const STAGE_WIN_POINTS = { 'Final': 200, 'Third Place': 100 }
+const SCORE_PICKER_STAGES = ['Final', 'Third Place']
 
-export default function MatchCard({ match, prediction, onPredict, locked, compact }) {
+export default function MatchCard({ match, prediction, predScore, onPredict, locked, compact }) {
   const { home_team, away_team, match_date, venue, home_score, away_score, stage, status } = match
   const stageColor = STAGE_COLORS[stage] ?? 'bg-gray-800 text-gray-300'
   const { pst, nl } = formatTimes(match_date)
   const isKnockout = KNOCKOUT_STAGES.includes(stage)
+  const hasScorePicker = SCORE_PICKER_STAGES.includes(stage)
+
+  const [scoreHome, setScoreHome] = useState(predScore?.home ?? '')
+  const [scoreAway, setScoreAway] = useState(predScore?.away ?? '')
+  const [drawPens, setDrawPens] = useState(false)
+  const [pensWinner, setPensWinner] = useState(prediction ?? '')
+
+  useEffect(() => {
+    setScoreHome(predScore?.home ?? '')
+    setScoreAway(predScore?.away ?? '')
+  }, [predScore?.home, predScore?.away])
+
+  useEffect(() => {
+    if (prediction) setPensWinner(prediction)
+  }, [prediction])
+
+  function submitScorePick() {
+    if (locked || !onPredict) return
+    const hs = scoreHome === '' ? null : Number(scoreHome)
+    const as = scoreAway === '' ? null : Number(scoreAway)
+    let winner
+    if (hs !== null && as !== null) {
+      if (hs > as) winner = 'home'
+      else if (as > hs) winner = 'away'
+      else winner = drawPens ? pensWinner : null
+    } else {
+      winner = null
+    }
+    if (!winner) return
+    onPredict(match.id, winner, hs, as)
+  }
 
   const canPredict = status === 'upcoming' && !locked
   const actual =
@@ -46,9 +79,19 @@ export default function MatchCard({ match, prediction, onPredict, locked, compac
   function pointLabel() {
     if (!prediction || actual === null) return null
     const winPts = STAGE_WIN_POINTS[stage] ?? 2
-    const pts = prediction === actual ? winPts : (!isKnockout && (prediction === 'draw' || actual === 'draw')) ? 1 : 0
+    let pts = prediction === actual ? winPts : (!isKnockout && (prediction === 'draw' || actual === 'draw')) ? 1 : 0
+    let scoreBonus = 0
+    if (pts === winPts && hasScorePicker && predScore?.home !== null && predScore?.home !== undefined && predScore?.away !== null && predScore?.away !== undefined) {
+      if (Number(predScore.home) === home_score && Number(predScore.away) === away_score) scoreBonus = 100
+    }
+    const total = pts + scoreBonus
     const color = pts === winPts ? 'text-green-400' : pts === 1 ? 'text-yellow-400' : 'text-red-400'
-    return <span className={`text-sm font-bold ${color}`}>{pts > 0 ? `+${pts} pts` : '+0 pts'}</span>
+    return (
+      <span className={`text-sm font-bold ${color}`}>
+        {total > 0 ? `+${total} pts` : '+0 pts'}
+        {scoreBonus > 0 && <span className="text-xs text-yellow-300 ml-1">(+100 exact!)</span>}
+      </span>
+    )
   }
 
   if (compact) {
@@ -129,7 +172,60 @@ export default function MatchCard({ match, prediction, onPredict, locked, compac
         {venue && <div className="hidden sm:block">{venue}</div>}
       </div>
 
-      {status === 'upcoming' && onPredict && (
+      {status === 'upcoming' && onPredict && hasScorePicker && (
+        <div className="mt-4 space-y-3">
+          <div className="text-xs text-gray-400 text-center">Predict the score (+100 pts bonus for exact score)</div>
+          <div className="flex items-center gap-2 justify-center">
+            <div className="text-center">
+              <div className="text-xs text-gray-400 mb-1 truncate max-w-[80px]">{home_team}</div>
+              <input
+                type="number" min="0" max="20"
+                value={scoreHome}
+                onChange={e => setScoreHome(e.target.value)}
+                disabled={locked}
+                className="w-14 text-center bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg py-2 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:border-fifa-gold disabled:opacity-50"
+              />
+            </div>
+            <div className="text-gray-500 font-bold mt-4">–</div>
+            <div className="text-center">
+              <div className="text-xs text-gray-400 mb-1 truncate max-w-[80px]">{away_team}</div>
+              <input
+                type="number" min="0" max="20"
+                value={scoreAway}
+                onChange={e => setScoreAway(e.target.value)}
+                disabled={locked}
+                className="w-14 text-center bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg py-2 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:border-fifa-gold disabled:opacity-50"
+              />
+            </div>
+          </div>
+          {scoreHome !== '' && scoreAway !== '' && Number(scoreHome) === Number(scoreAway) && (
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 justify-center text-xs text-gray-300 cursor-pointer">
+                <input type="checkbox" checked={drawPens} onChange={e => setDrawPens(e.target.checked)} className="accent-fifa-gold" />
+                Draw after 90 min, winner via penalties
+              </label>
+              {drawPens && (
+                <div className="flex gap-2">
+                  {[{ val: 'home', label: `🏠 ${home_team}` }, { val: 'away', label: `✈️ ${away_team}` }].map(({ val, label }) => (
+                    <button key={val} onClick={() => setPensWinner(val)}
+                      className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition-colors ${pensWinner === val ? 'bg-fifa-gold text-fifa-dark border-fifa-gold' : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-fifa-gold'}`}
+                    >{label}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          <button
+            onClick={submitScorePick}
+            disabled={locked || scoreHome === '' || scoreAway === '' || (Number(scoreHome) === Number(scoreAway) && (!drawPens || !pensWinner))}
+            className={`w-full py-2 rounded-lg border text-xs font-bold transition-colors ${prediction ? 'bg-fifa-gold text-fifa-dark border-fifa-gold' : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-fifa-gold'} disabled:opacity-40 disabled:cursor-not-allowed`}
+          >
+            {prediction ? `✓ Pick saved (${flag(prediction === 'home' ? home_team : away_team)} wins)` : 'Save Pick'}
+          </button>
+        </div>
+      )}
+
+      {status === 'upcoming' && onPredict && !hasScorePicker && (
         <div className="mt-4 flex gap-2 text-xs font-semibold">
           {[
             { val: 'home', label: `🏠 ${home_team}` },
@@ -157,7 +253,9 @@ export default function MatchCard({ match, prediction, onPredict, locked, compac
       )}
 
       {locked && status === 'upcoming' && prediction && (
-        <div className="mt-3 text-center text-xs text-yellow-500">🔒 Pick locked in</div>
+        <div className="mt-3 text-center text-xs text-yellow-500">
+          🔒 Pick locked in{hasScorePicker && predScore?.home !== undefined ? ` · ${predScore.home}–${predScore.away}` : ''}
+        </div>
       )}
     </div>
   )
