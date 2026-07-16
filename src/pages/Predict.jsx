@@ -17,7 +17,7 @@ export default function Predict({ userName, onSetName }) {
   const [matches, setMatches] = useState([])
   const [predictions, setPredictions] = useState({})
   const [predScores, setPredScores] = useState({})
-  const [scoreInputs, setScoreInputs] = useState({}) // { [matchId]: { home: '', away: '' } }
+  const [scoreInputs, setScoreInputs] = useState({}) // { [matchId]: { home: '', away: '', drawPens: false, pensWinner: '' } }
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('upcoming')
   const [search, setSearch] = useState('')
@@ -35,8 +35,19 @@ export default function Predict({ userName, onSetName }) {
         }
       }
       const inputs = {}
-      for (const [matchId, s] of Object.entries(scoreMap)) {
-        inputs[matchId] = { home: s.home ?? '', away: s.away ?? '' }
+      for (const pred of p) {
+        const mid = pred.match_id
+        const hs = pred.predicted_home_score
+        const as = pred.predicted_away_score
+        if (hs !== null && hs !== undefined && as !== null && as !== undefined) {
+          const isTied = Number(hs) === Number(as)
+          inputs[mid] = {
+            home: hs,
+            away: as,
+            drawPens: isTied,
+            pensWinner: isTied ? (pred.predicted_winner ?? '') : '',
+          }
+        }
       }
       setPredictions(map)
       setPredScores(scoreMap)
@@ -193,8 +204,8 @@ export default function Predict({ userName, onSetName }) {
               match={m}
               prediction={predictions[m.id]}
               predScore={predScores[m.id]}
-              scoreInput={scoreInputs[m.id] ?? { home: '', away: '' }}
-              onScoreChange={(matchId, field, val) => setScoreInputs(s => ({ ...s, [matchId]: { ...(s[matchId] ?? { home: '', away: '' }), [field]: val } }))}
+              scoreInput={scoreInputs[m.id] ?? { home: '', away: '', drawPens: false, pensWinner: '' }}
+              onScoreChange={(matchId, field, val) => setScoreInputs(s => ({ ...s, [matchId]: { ...(s[matchId] ?? { home: '', away: '', drawPens: false, pensWinner: '' }), [field]: val } }))}
               onPredict={handlePredict}
               locked={isMatchLocked(m)}
               compact={compact}

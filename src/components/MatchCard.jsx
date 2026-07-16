@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { FLAG_EMOJI, STAGE_COLORS } from '../data/schedule'
 
 function formatTimes(iso) {
@@ -40,12 +39,8 @@ export default function MatchCard({ match, prediction, predScore, scoreInput, on
 
   const scoreHome = scoreInput?.home ?? ''
   const scoreAway = scoreInput?.away ?? ''
-  const [drawPens, setDrawPens] = useState(false)
-  const [pensWinner, setPensWinner] = useState(prediction ?? '')
-
-  useEffect(() => {
-    if (prediction) setPensWinner(prediction)
-  }, [prediction])
+  const drawPens = scoreInput?.drawPens ?? false
+  const pensWinner = scoreInput?.pensWinner ?? ''
 
   function submitScorePick() {
     if (locked || !onPredict) return
@@ -196,13 +191,13 @@ export default function MatchCard({ match, prediction, predScore, scoreInput, on
           {scoreHome !== '' && scoreAway !== '' && Number(scoreHome) === Number(scoreAway) && (
             <div className="space-y-2">
               <label className="flex items-center gap-2 justify-center text-xs text-gray-300 cursor-pointer">
-                <input type="checkbox" checked={drawPens} onChange={e => setDrawPens(e.target.checked)} className="accent-fifa-gold" />
+                <input type="checkbox" checked={drawPens} onChange={e => onScoreChange && onScoreChange(match.id, 'drawPens', e.target.checked)} className="accent-fifa-gold" />
                 Draw after 90 min, winner via penalties
               </label>
               {drawPens && (
                 <div className="flex gap-2">
                   {[{ val: 'home', label: `🏠 ${home_team}` }, { val: 'away', label: `✈️ ${away_team}` }].map(({ val, label }) => (
-                    <button key={val} onClick={() => setPensWinner(val)}
+                    <button key={val} onClick={() => onScoreChange && onScoreChange(match.id, 'pensWinner', val)}
                       className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition-colors ${pensWinner === val ? 'bg-fifa-gold text-fifa-dark border-fifa-gold' : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-fifa-gold'}`}
                     >{label}</button>
                   ))}
