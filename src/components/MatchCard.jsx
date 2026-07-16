@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { FLAG_EMOJI, STAGE_COLORS } from '../data/schedule'
 
 function formatTimes(iso) {
@@ -31,26 +31,17 @@ const KNOCKOUT_STAGES = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-fi
 const STAGE_WIN_POINTS = { 'Final': 200, 'Third Place': 100 }
 const SCORE_PICKER_STAGES = ['Final', 'Third Place']
 
-export default function MatchCard({ match, prediction, predScore, onPredict, locked, compact }) {
+export default function MatchCard({ match, prediction, predScore, scoreInput, onScoreChange, onPredict, locked, compact }) {
   const { home_team, away_team, match_date, venue, home_score, away_score, stage, status } = match
   const stageColor = STAGE_COLORS[stage] ?? 'bg-gray-800 text-gray-300'
   const { pst, nl } = formatTimes(match_date)
   const isKnockout = KNOCKOUT_STAGES.includes(stage)
   const hasScorePicker = SCORE_PICKER_STAGES.includes(stage)
 
-  const [scoreHome, setScoreHome] = useState(predScore?.home ?? '')
-  const [scoreAway, setScoreAway] = useState(predScore?.away ?? '')
+  const scoreHome = scoreInput?.home ?? ''
+  const scoreAway = scoreInput?.away ?? ''
   const [drawPens, setDrawPens] = useState(false)
   const [pensWinner, setPensWinner] = useState(prediction ?? '')
-  const syncedRef = useRef(false)
-
-  useEffect(() => {
-    if (!syncedRef.current && predScore != null) {
-      setScoreHome(predScore.home ?? '')
-      setScoreAway(predScore.away ?? '')
-      syncedRef.current = true
-    }
-  }, [predScore])
 
   useEffect(() => {
     if (prediction) setPensWinner(prediction)
@@ -185,7 +176,7 @@ export default function MatchCard({ match, prediction, predScore, onPredict, loc
               <input
                 type="number" min="0" max="20"
                 value={scoreHome}
-                onChange={e => setScoreHome(e.target.value)}
+                onChange={e => onScoreChange && onScoreChange(match.id, 'home', e.target.value)}
                 disabled={locked}
                 className="w-14 text-center bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg py-2 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:border-fifa-gold disabled:opacity-50"
               />
@@ -196,7 +187,7 @@ export default function MatchCard({ match, prediction, predScore, onPredict, loc
               <input
                 type="number" min="0" max="20"
                 value={scoreAway}
-                onChange={e => setScoreAway(e.target.value)}
+                onChange={e => onScoreChange && onScoreChange(match.id, 'away', e.target.value)}
                 disabled={locked}
                 className="w-14 text-center bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg py-2 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:border-fifa-gold disabled:opacity-50"
               />
